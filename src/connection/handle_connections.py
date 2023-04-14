@@ -1,9 +1,11 @@
-import re
-import time
-import sys
 import os
-import ssl
+import re
 import socket
+import ssl
+import sys
+import time
+from typing import Tuple
+
 from . import socks as socks
 
 TIMEOUT = 30
@@ -33,7 +35,7 @@ def get_status_code(response_string: str) -> int:
 
 
 def request(request_bytes: bytes, host: str, port: int, tls: bool = True, socks5=False, socks_proxy_ip: str = None,
-            socks_port: int = None) -> bytes:
+            socks_port: int = None) -> Tuple[bytes, int]:
     """
     :param host: host name to connect to
     :param port: listening port for host

@@ -11,7 +11,13 @@ except ImportError:
 from UI import home_page
 from UI_Utils import JoinList, RequestThread
 
-CARDS_DIRECTORY = 'UI/images/41x60/'
+# find the base directory of the project in executable mode
+if getattr(sys, 'frozen', False):
+    BASE_DIR = os.path.dirname(os.path.abspath(sys.executable))
+else:
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+CARDS_DIRECTORY = os.path.join(BASE_DIR, 'UI/images/41x60/')
 CARDS = {}
 
 
