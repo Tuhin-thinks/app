@@ -15,6 +15,8 @@ from UI_Utils.captcha_verification import CaptchaDialog
 from UI_Utils.deposit_verification import BtcDeposit
 from connection import api
 
+from config import GlobalConfig, get_logger
+
 ERROR_MSG = "<h3>Error</h3>"
 ERROR_POPUP_TITLE = "ERROR"
 
@@ -130,6 +132,8 @@ class JoinList(QMainWindow):
         self.ui = tables_list.Ui_MainWindow()
         self.ui.setupUi(self)
 
+        self._ds_obj = None
+        self._test_run = GlobalConfig.get_test_run()
         self.to_close = False
         self.socks5 = socks5
         self.socks_port = socks_port
@@ -160,6 +164,10 @@ class JoinList(QMainWindow):
                            socks5_port=self.socks_port)
         if hasattr(self, 'ui'):
             self.ui.tableWidget_game_tables.installEventFilter(self)
+            
+        if self._test_run:
+            self._ds_obj = GlobalConfig.get_data_sharing_instance_obj()
+            self._ds_obj.pop_from_wait_queue('opening_window')  # TODO: Add a better operation name.
 
     def eventFilter(self, a0: 'QObject', a1: 'QEvent') -> bool:
         if a1.__class__ == QResizeEvent and hasattr(self, 'ui'):
