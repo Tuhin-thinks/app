@@ -131,3 +131,7 @@ dmypy.json
 # IDE files
 *.idea
 *.vscode
+
+# ignore test directories
+test_data
+test_logs
