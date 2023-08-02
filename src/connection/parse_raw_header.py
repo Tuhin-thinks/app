@@ -22,7 +22,9 @@ def resp_header_parse(resp_bytes: bytes, do_return: bool = False, captcha: bool 
         eval_json = json.loads(string_json)
         if 'error' in eval_json:
             return header_part, None
-        if do_return:
+
+        # do_return is for returning response json, if do_return is True, captcha will be False
+        if do_return and not captcha:
             header_part = res_string[:res_string.index('{')]
             return header_part, eval_json
         # this is for captcha base64 string decoding

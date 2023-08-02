@@ -1,4 +1,5 @@
 from . import handle_connections, parse_raw_header
+from wrappers import request_writer
 
 CONTENT_TYPE_FORM = "application/x-www-form-urlencoded"
 
@@ -22,13 +23,26 @@ class API:
     def get_cookie(self):
         return self.RUNTIME_COOKIE
 
-    def make_request(self, request_bytes: bytes, return_header=False):
+    @request_writer.log_connections
+    def make_request(self, request_bytes: bytes, return_header=False, captcha=False):
+        """
+        Function to make requests to the API.
+
+        :param request_bytes:
+        :param return_header:
+        :param captcha: True to return captcha base64 string, else False.
+        `resp` from `resp_header_parse` contains the captcha base64 string if captcha is True
+        :return:
+        """
         resp_bytes = handle_connections.request(request_bytes, self.host, self.port, self.tls, self.socks5,
                                                 self.socks5_ip, self.socks5_port)
-        header_string, resp = parse_raw_header.resp_header_parse(resp_bytes, do_return=True)
-        if return_header:
-            return header_string, resp
-        return resp
+        header_string, resp = parse_raw_header.resp_header_parse(resp_bytes, do_return=True, captcha=captcha)
+
+        # TODO: enable this when the API logging is complete.
+        # if return_header:
+        #     return header_string, resp
+        # return resp
+        return header_string, resp
 
     def api_call(self, request_alias: str, payload: bytes = None, params=None):
         if params is None:
@@ -114,9 +128,10 @@ Connection: close\r
                 host=self.host,
                 cookie=self.RUNTIME_COOKIE
             ).encode('utf-8')
-            resp_bytes = handle_connections.request(request_bytes, self.host, self.port, self.tls, self.socks5,
-                                                    self.socks5_ip, self.socks5_port)
-            header_string, image_data = parse_raw_header.resp_header_parse(resp_bytes, do_return=False, captcha=True)
+            # resp_bytes = handle_connections.request(request_bytes, self.host, self.port, self.tls, self.socks5,
+            #                                         self.socks5_ip, self.socks5_port)
+            # header_string, image_data = parse_raw_header.resp_header_parse(resp_bytes, do_return=False, captcha=True)
+            header_string, image_data = self.make_request(request_bytes, return_header=True, captcha=True)
             if header_string and image_data:
                 return image_data
         elif request_alias == 'POST /json/send':
